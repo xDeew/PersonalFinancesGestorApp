@@ -1,0 +1,67 @@
+/* app.css */
+
+.root {
+  -fx-font-family: "Segoe UI", sans-serif;
+  -fx-base: #f4f4f4;
+  -fx-background: #f4f4f4;
+}
+
+.tool-bar {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #d1d1d1;
+  -fx-border-width: 0 0 1 0;
+}
+
+.table-view {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #d1d1d1;
+  -fx-border-width: 1;
+}
+.table-view .column-header-background {
+  -fx-background-color: linear-gradient(to bottom, #ececec, #dddddd);
+}
+.table-row-cell:filled:selected,
+.table-row-cell:filled:selected:focused {
+  -fx-background-color: #4d86f7;   /* color de selección */
+  -fx-text-fill: white;
+}
+
+.button {
+  -fx-background-radius: 4;
+  -fx-background-color: linear-gradient(to bottom, #6ea8fe, #4d86f7);
+  -fx-text-fill: white;
+  -fx-font-weight: bold;
+}
+.button:hover {
+  -fx-background-color: linear-gradient(to bottom, #7faeff, #5b96f9);
+}
+
+.text-field, .date-picker {
+  -fx-background-color: white;
+  -fx-border-radius: 4;
+  -fx-background-radius: 4;
+  -fx-border-color: #bbbbbb;
+  -fx-padding: 0.33em 0.5em;
+}
+.text-field:focused, .date-picker:focused {
+  -fx-border-color: #4d86f7;
+}
+
+.label.total {
+  -fx-font-size: 16px;
+  -fx-font-weight: bold;
+  -fx-text-fill: #4d86f7;
+  -fx-padding: 0.5em 0;
+}
+
+.tooltip {
+  -fx-background-color: white;       /* fondo blanco */
+  -fx-text-fill: black;              /* texto negro */
+  -fx-border-color: #cccccc;         /* borde ligero */
+  -fx-border-width: 1;
+  -fx-padding: 5px;                  /* algo de espacio interno */
+  -fx-background-radius: 4px;        /* esquinas redondeadas */
+  -fx-border-radius: 4px;
+  -fx-font-size: 12px;               /* tamaño legible */
+}
+
