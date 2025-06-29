@@ -6,26 +6,35 @@
   -fx-background: #f4f4f4;
 }
 
+/* Contenedor superior (toolbar + form) */
+.top-box {
+  -fx-spacing: 5px;
+  -fx-padding: 5px;
+  -fx-background-color: #ffffff;
+  -fx-border-color: #d1d1d1;
+  -fx-border-width: 0 0 1 0;
+}
+
+/* Toolbar */
 .tool-bar {
   -fx-background-color: #ffffff;
   -fx-border-color: #d1d1d1;
   -fx-border-width: 0 0 1 0;
 }
 
-.table-view {
-  -fx-background-color: #ffffff;
-  -fx-border-color: #d1d1d1;
-  -fx-border-width: 1;
+/* Formulario */
+.text-field, .date-picker, .combo-box {
+  -fx-background-color: white;
+  -fx-border-radius: 4;
+  -fx-background-radius: 4;
+  -fx-border-color: #bbbbbb;
+  -fx-padding: 0.33em 0.5em;
 }
-.table-view .column-header-background {
-  -fx-background-color: linear-gradient(to bottom, #ececec, #dddddd);
-}
-.table-row-cell:filled:selected,
-.table-row-cell:filled:selected:focused {
-  -fx-background-color: #4d86f7;   /* color de selección */
-  -fx-text-fill: white;
+.text-field:focused, .date-picker:focused, .combo-box:focused {
+  -fx-border-color: #4d86f7;
 }
 
+/* Botones */
 .button {
   -fx-background-radius: 4;
   -fx-background-color: linear-gradient(to bottom, #6ea8fe, #4d86f7);
@@ -36,17 +45,36 @@
   -fx-background-color: linear-gradient(to bottom, #7faeff, #5b96f9);
 }
 
-.text-field, .date-picker {
-  -fx-background-color: white;
-  -fx-border-radius: 4;
-  -fx-background-radius: 4;
-  -fx-border-color: #bbbbbb;
-  -fx-padding: 0.33em 0.5em;
+/* Tabla */
+.table-view {
+  -fx-background-color: #ffffff;
+  -fx-border-color: #d1d1d1;
+  -fx-border-width: 1;
 }
-.text-field:focused, .date-picker:focused {
-  -fx-border-color: #4d86f7;
+.table-view .column-header-background {
+  -fx-background-color: linear-gradient(to bottom, #ececec, #dddddd);
+}
+.table-row-cell:filled:selected,
+.table-row-cell:filled:selected:focused {
+  -fx-background-color: #4d86f7;
+  -fx-text-fill: white;
 }
 
+/* Resumen (gastos / ingresos / balance + gráfico) */
+.summary-box {
+  -fx-spacing: 20px;
+  -fx-alignment: center;
+  -fx-padding: 10px 0;
+  -fx-background-color: #ffffff;
+  -fx-border-color: #d1d1d1;
+  -fx-border-width: 1 0 1 0;
+}
+.summary-label {
+  -fx-font-size: 14px;
+  -fx-font-weight: bold;
+}
+
+/* Total mensual */
 .label.total {
   -fx-font-size: 16px;
   -fx-font-weight: bold;
@@ -54,14 +82,26 @@
   -fx-padding: 0.5em 0;
 }
 
+/* Tooltip del PieChart */
 .tooltip {
   -fx-background-color: white;
   -fx-text-fill: black;
-  -fx-border-color: #cccccc;         /* borde ligero */
+  -fx-border-color: #cccccc;
   -fx-border-width: 1;
-  -fx-padding: 5px;                  /* algo de espacio interno */
-  -fx-background-radius: 4px;        /* esquinas redondeadas */
+  -fx-padding: 5px;
+  -fx-background-radius: 4px;
   -fx-border-radius: 4px;
-  -fx-font-size: 12px;               /* tamaño legible */
+  -fx-font-size: 12px;
 }
 
+/* Mensaje inteligente (“tipLabel”) */
+.tip {
+  -fx-font-style: italic;
+  -fx-text-fill: #333333;
+  -fx-background-color: #fffbdd;
+  -fx-border-color: #ffe58f;
+  -fx-border-width: 1;
+  -fx-padding: 8px;
+  -fx-background-radius: 4;
+  -fx-border-radius: 4;
+}

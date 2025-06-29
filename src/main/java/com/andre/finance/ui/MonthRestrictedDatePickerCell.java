@@ -16,7 +16,7 @@ public class MonthRestrictedDatePickerCell<S> extends TableCell<S, LocalDate> {
 
     public MonthRestrictedDatePickerCell(YearMonth allowed) {
         this.allowed = allowed;
-        this.picker.setDayCellFactory((p) -> new DateCell() {
+      /*   this.picker.setDayCellFactory((p) -> new DateCell() {
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
                 if (!empty && !YearMonth.from(date).equals(allowed)) {
@@ -24,6 +24,16 @@ public class MonthRestrictedDatePickerCell<S> extends TableCell<S, LocalDate> {
                     this.setStyle("-fx-background-color: lightgray;");
                 }
 
+            }
+        }); */
+        picker.setDayCellFactory(dp -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                if (!empty && date.isAfter(LocalDate.now())) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #ffc0cb;");
+                }
             }
         });
         this.picker.setOnAction((e) -> this.commitEdit((LocalDate) this.picker.getValue()));

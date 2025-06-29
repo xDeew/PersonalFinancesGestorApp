@@ -7,20 +7,22 @@ package com.andre.finance.service;
 
 import com.andre.finance.dao.TransactionDao;
 import com.andre.finance.model.Transaction;
+
 import java.io.PrintStream;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.YearMonth;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class FinanceService {
     private final TransactionDao dao = new TransactionDao();
 
     public boolean addTransaction(LocalDate date, String desc, double rawAmt, String category, String type) {
         YearMonth ym = YearMonth.from(LocalDate.now());
-        if (!YearMonth.from(date).equals(ym)) {
+        // if (!YearMonth.from(date).equals(ym)) {
+        if (date.isAfter(LocalDate.now())) {
             return false;
         } else {
             double var10000;
@@ -110,4 +112,35 @@ public class FinanceService {
         }
 
     }
+
+
+    /**
+     * Calcula el gasto promedio absoluto por categoría en los N meses anteriores al mes dado.
+     */
+    public Map<String, Double> averageSpendingPerCategory(YearMonth current, int monthsBack) {
+        // 1) construye la lista de YearMonth previos
+        List<YearMonth> prevMonths = IntStream.rangeClosed(1, monthsBack)
+                .mapToObj(i -> current.minusMonths(i))
+                .collect(Collectors.toList());
+
+        // 2) filtra transacciones que caigan en prevMonths
+        List<Transaction> prevTx = findAll().stream()
+                .filter(tx -> prevMonths.contains(YearMonth.from(tx.getDate())))
+                .collect(Collectors.toList());
+
+        // 3) agrupa y suma gastos absolutos
+        Map<String, Double> sumByCat = prevTx.stream()
+                .collect(Collectors.groupingBy(
+                        Transaction::getCategory,
+                        Collectors.summingDouble(tx -> Math.abs(tx.getAmount()))
+                ));
+
+        // 4) divide cada suma entre monthsBack para obtener promedio
+        return sumByCat.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> e.getValue() / monthsBack
+        ));
+    }
+
+
 }
