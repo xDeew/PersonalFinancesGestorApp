@@ -1,4 +1,3 @@
-
 package com.andre.finance.ui;
 
 import com.andre.finance.model.Transaction;
@@ -74,13 +73,15 @@ public class GuiApp extends Application {
     @Override
     public void start(Stage stage) {
 
-        pie.setPrefSize(300, 300);
-        pie.setMinSize(300, 300);
-        pie.setMaxSize(300, 300);
+        // limitamos el PieChart para que no se coma todo el espacio
+        pie.setPrefSize(250, 250);
+        pie.setMinSize(250, 250);
+        pie.setMaxSize(250, 250);
+
 
         // 1) Creamos toolbar y formulario
         ToolBar toolbar = createToolbar();
-        HBox form    = createForm();
+        HBox form = createForm();
 
         // 2) Metemos toolbar + form en un VBox “top-box”
         VBox topBox = new VBox(toolbar, form);
@@ -169,31 +170,20 @@ public class GuiApp extends Application {
         var all = service.findAll();
 
         // 2) construye el conjunto de meses
-        TreeSet<YearMonth> months = all.stream()
-                .map(tx -> YearMonth.from(tx.getDate()))
-                .collect(Collectors.toCollection(TreeSet::new));
+        TreeSet<YearMonth> months = all.stream().map(tx -> YearMonth.from(tx.getDate())).collect(Collectors.toCollection(TreeSet::new));
         months.add(YearMonth.now());
 
         // 3) crea cada pestaña
         for (YearMonth ym : months) {
-            List<Transaction> lista = all.stream()
-                    .filter(tx -> YearMonth.from(tx.getDate()).equals(ym))
-                    .sorted(Comparator.comparing(Transaction::getDate))
-                    .toList();
+            List<Transaction> lista = all.stream().filter(tx -> YearMonth.from(tx.getDate()).equals(ym)).sorted(Comparator.comparing(Transaction::getDate)).toList();
 
             TableView<Transaction> table = createTable(ym);
             table.setItems(FXCollections.observableArrayList(lista));
 
-            String ph = lista.isEmpty()
-                    ? "No hay transacciones en " +
-                    ym.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()) +
-                    " " + ym.getYear()
-                    : "";
+            String ph = lista.isEmpty() ? "No hay transacciones en " + ym.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + ym.getYear() : "";
             table.setPlaceholder(new Label(ph));
 
-            String title = ym.getMonth()
-                    .getDisplayName(TextStyle.FULL, Locale.getDefault())
-                    + " " + ym.getYear();
+            String title = ym.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + ym.getYear();
             Tab tab = new Tab(title, table);
             tab.setUserData(ym);
             tabs.getTabs().add(tab);
@@ -225,6 +215,10 @@ public class GuiApp extends Application {
     private TableView<Transaction> createTable(YearMonth allowedMonth) {
         TableView<Transaction> table = new TableView();
         table.setEditable(true);
+        // fuerza a las columnas a repartir anchura y evita scroll horizontal
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        // permitimos que la tabla crezca verticalmente
+        VBox.setVgrow(table, Priority.ALWAYS);
         TableColumn<Transaction, LocalDate> cDate = new TableColumn("Fecha");
         cDate.setCellValueFactory(new PropertyValueFactory("date"));
         cDate.setCellFactory((col) -> new MonthRestrictedDatePickerCell(allowedMonth));
@@ -289,8 +283,7 @@ public class GuiApp extends Application {
         return table;
     }
 
-    private final Map<String, String> CATEGORY_COLORS = Map.of(
-            "Comida", "#4CAF50",  // verde
+    private final Map<String, String> CATEGORY_COLORS = Map.of("Comida", "#4CAF50",  // verde
             "Transporte", "#FF9800",  // naranja
             "Ocio", "#2196F3",  // azul
             "Suscripciones", "#9C27B0",  // morado
@@ -307,35 +300,26 @@ public class GuiApp extends Application {
         YearMonth ym = (YearMonth) sel.getUserData();
 
         // Filtrar las transacciones de este mes
-        List<Transaction> mes = service.findAll().stream()
-                .filter(tx -> YearMonth.from(tx.getDate()).equals(ym))
-                .toList();
+        List<Transaction> mes = service.findAll().stream().filter(tx -> YearMonth.from(tx.getDate()).equals(ym)).toList();
 
         // Calcular gastos, ingresos y balance
-        double gastos = mes.stream().filter(t -> t.getAmount() < 0)
-                .mapToDouble(Transaction::getAmount).sum();
-        double ingresos = mes.stream().filter(t -> t.getAmount() >= 0)
-                .mapToDouble(Transaction::getAmount).sum();
+        double gastos = mes.stream().filter(t -> t.getAmount() < 0).mapToDouble(Transaction::getAmount).sum();
+        double ingresos = mes.stream().filter(t -> t.getAmount() >= 0).mapToDouble(Transaction::getAmount).sum();
         double balance = ingresos + gastos;
 
         // Actualizar etiquetas
-        lblGastos.setText("Gastos   : " + fmt.format(Math.abs(gastos)));
-        lblIngresos.setText("Ingresos : " + fmt.format(ingresos));
-        lblBalance.setText("Balance  : " + fmt.format(balance));
+        lblGastos.setText("Gastos: " + fmt.format(Math.abs(gastos)));
+        lblIngresos.setText("Ingresos: " + fmt.format(ingresos));
+        lblBalance.setText("Balance: " + fmt.format(balance));
 
         // Agrupar por categoría y sumar
-        Map<String, Double> byCat = mes.stream()
-                .collect(Collectors.groupingBy(
-                        Transaction::getCategory,
-                        Collectors.summingDouble(Transaction::getAmount)
-                ));
+        Map<String, Double> byCat = mes.stream().collect(Collectors.groupingBy(Transaction::getCategory, Collectors.summingDouble(Transaction::getAmount)));
 
         // Asegurarnos de que "Otros" siempre esté presente (aunque a 0)
         byCat.putIfAbsent("Otros", 0.0);
 
         // Construir los slices
-        double totalAbs = byCat.values().stream()
-                .mapToDouble(Math::abs).sum();
+        double totalAbs = byCat.values().stream().mapToDouble(Math::abs).sum();
 
         ObservableList<PieChart.Data> slices = FXCollections.observableArrayList();
         byCat.forEach((cat, suma) -> {
@@ -347,9 +331,7 @@ public class GuiApp extends Application {
             slice.nodeProperty().addListener((obs, oldNode, newNode) -> {
                 if (newNode != null) {
                     double pct = totalAbs == 0 ? 0 : abs / totalAbs * 100;
-                    Tooltip tp = new Tooltip(
-                            String.format(Locale.getDefault(), "%s: %.2f%%", cat, pct)
-                    );
+                    Tooltip tp = new Tooltip(String.format(Locale.getDefault(), "%s: %.2f%%", cat, pct));
                     newNode.setOnMouseEntered(evt -> {
                         Bounds b = newNode.localToScreen(newNode.getBoundsInLocal());
                         tp.show(newNode, b.getMinX(), b.getMinY());
@@ -390,12 +372,7 @@ public class GuiApp extends Application {
         YearMonth current = (YearMonth) sel.getUserData();
 
         // 1) Total absoluto por categoría este mes
-        Map<String, Double> thisMonthByCat = service.findAll().stream()
-                .filter(tx -> YearMonth.from(tx.getDate()).equals(current))
-                .collect(Collectors.groupingBy(
-                        Transaction::getCategory,
-                        Collectors.summingDouble(tx -> Math.abs(tx.getAmount()))
-                ));
+        Map<String, Double> thisMonthByCat = service.findAll().stream().filter(tx -> YearMonth.from(tx.getDate()).equals(current)).collect(Collectors.groupingBy(Transaction::getCategory, Collectors.summingDouble(tx -> Math.abs(tx.getAmount()))));
 
         // 2) Media absoluta por categoría de los N meses anteriores
         Map<String, Double> avgByCat = service.averageSpendingPerCategory(current, monthsBack);
@@ -413,17 +390,9 @@ public class GuiApp extends Application {
             if (media > 0 && actual > media * 1.10) {
                 double pct = (actual - media) / media * 100;
                 if ("Inversión".equals(cat)) {
-                    tips.add(String.format(
-                            Locale.getDefault(),
-                            "Has invertido un %.0f%% más que la media de los últimos %d meses.",
-                            pct, monthsBack
-                    ));
+                    tips.add(String.format(Locale.getDefault(), "Has invertido un %.0f%% más que la media de los últimos %d meses.", pct, monthsBack));
                 } else {
-                    tips.add(String.format(
-                            Locale.getDefault(),
-                            "Has gastado un %.0f%% más en %s que la media de los últimos %d meses.",
-                            pct, cat, monthsBack
-                    ));
+                    tips.add(String.format(Locale.getDefault(), "Has gastado un %.0f%% más en %s que la media de los últimos %d meses.", pct, cat, monthsBack));
                 }
             }
         }
@@ -509,14 +478,15 @@ public class GuiApp extends Application {
     }
 
     private void updateTotal() {
-        Tab sel = (Tab) this.tabs.getSelectionModel().getSelectedItem();
+        Tab sel = tabs.getSelectionModel().getSelectedItem();
         if (sel == null) {
-            this.lblTotal.setText("");
+            lblTotal.setText("");
         } else {
             YearMonth ym = (YearMonth) sel.getUserData();
-            double total = this.service.findAll().stream().filter((tx) -> YearMonth.from(tx.getDate()).equals(ym)).mapToDouble(Transaction::getAmount).sum();
-            String monthName = ym.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault());
-            this.lblTotal.setText(String.format("%s %d: %s", monthName, ym.getYear(), this.fmt.format(total)));
+            double total = service.findAll().stream().filter(tx -> YearMonth.from(tx.getDate()).equals(ym)).mapToDouble(Transaction::getAmount).sum();
+            // mes en mayúsculas
+            String monthName = ym.getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()).toUpperCase();
+            lblTotal.setText(String.format("%s %d: %s", monthName, ym.getYear(), fmt.format(total)));
         }
     }
 
